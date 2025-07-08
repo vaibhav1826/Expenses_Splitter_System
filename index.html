@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Splitter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold mb-4 text-center">Expense Splitter</h1>
+
+        <!-- Add Person -->
+        <div class="mb-4">
+            <h2 class="text-lg font-semibold mb-2">Add Person</h2>
+            <div class="flex gap-2">
+                <input id="personName" type="text" placeholder="Enter name" class="flex-1 p-2 border rounded">
+                <button onclick="addPerson()" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Add</button>
+            </div>
+            <div id="peopleList" class="mt-2"></div>
+        </div>
+
+        <!-- Add Expense -->
+        <div class="mb-4">
+            <h2 class="text-lg font-semibold mb-2">Add Expense</h2>
+            <input id="expenseDesc" type="text" placeholder="Description" class="w-full p-2 mb-2 border rounded">
+            <input id="expenseAmount" type="number" placeholder="Amount" class="w-full p-2 mb-2 border rounded" min="0" step="0.01">
+            <select id="expensePayer" class="w-full p-2 mb-2 border rounded">
+                <option value="">Select Payer</option>
+            </select>
+            <div class="mb-2">
+                <label class="block text-sm font-medium mb-1">Split Among:</label>
+                <div id="expenseParticipants" class="flex flex-col gap-1"></div>
+            </div>
+            <button onclick="addExpense()" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 w-full">Add Expense</button>
+        </div>
+
+        <!-- Expenses List -->
+        <div class="mb-4">
+            <h2 class="text-lg font-semibold mb-2">Expenses</h2>
+            <div id="expensesList"></div>
+        </div>
+
+        <!-- Balances -->
+        <div>
+            <h2 class="text-lg font-semibold mb-2">Balances</h2>
+            <div id="balancesList"></div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="text-red-500 text-sm mt-2 hidden"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
