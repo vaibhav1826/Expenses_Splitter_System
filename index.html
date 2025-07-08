@@ -3,54 +3,1040 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Splitter</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Expense Splitter - Greedy Algorithm</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff9a56 0%, #ffad56 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.1) 10px,
+                rgba(255, 255, 255, 0.1) 20px
+            );
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: bounceIn 1s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .rupee-animation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            opacity: 0.1;
+            animation: float 3s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -60%) rotate(10deg); }
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #ff9a56;
+            padding-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ffad56, transparent);
+            animation: slide 2s ease-in-out infinite;
+        }
+
+        @keyframes slide {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ff9a56;
+            box-shadow: 0 0 0 3px rgba(255, 154, 86, 0.1);
+            transform: scale(1.02);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff9a56 0%, #ffad56 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 154, 86, 0.4);
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .people-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .person-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ff9a56;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            animation: zoomIn 0.5s ease-out;
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .person-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .expense-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .expense-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .expenses-list {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .expense-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #28a745;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .expense-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .expense-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .results {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .results.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .results h3 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .balance-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            animation: flipInY 0.6s ease-out;
+        }
+
+        @keyframes flipInY {
+            from {
+                opacity: 0;
+                transform: rotateY(-90deg);
+            }
+            to {
+                opacity: 1;
+                transform: rotateY(0);
+            }
+        }
+
+        .balance-card:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .balance-card.positive {
+            border-left: 4px solid #28a745;
+        }
+
+        .balance-card.negative {
+            border-left: 4px solid #dc3545;
+        }
+
+        .balance-card.zero {
+            border-left: 4px solid #6c757d;
+        }
+
+        .transaction-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .transaction-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .algorithm-info {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #17a2b8;
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .algorithm-info h4 {
+            color: #17a2b8;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+            animation: countUp 2s ease-out;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff9a56;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .calculate-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculate-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: translateY(-50%);
+            transition: left 0.6s ease;
+        }
+
+        .calculate-btn:hover::after {
+            left: 100%;
+        }
+
+        .money-flow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .money-flow::before {
+            content: '₹';
+            font-size: 1.2em;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @media (max-width: 768px) {
+            .expense-form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-        <h1 class="text-2xl font-bold mb-4 text-center">Expense Splitter</h1>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="rupee-animation">₹</div>
+            <h1>💰 Expense Splitter</h1>
+            <p class="subtitle">Optimal debt settlement using Greedy Algorithm • भारतीय रुपया</p>
+        </div>
 
-        <!-- Add Person -->
-        <div class="mb-4">
-            <h2 class="text-lg font-semibold mb-2">Add Person</h2>
-            <div class="flex gap-2">
-                <input id="personName" type="text" placeholder="Enter name" class="flex-1 p-2 border rounded">
-                <button onclick="addPerson()" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Add</button>
+        <div class="main-content">
+            <!-- People Management Section -->
+            <div class="section">
+                <h2>👥 Manage People</h2>
+                <div class="form-group">
+                    <label for="personName">Add Person:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="personName" placeholder="Enter person's name">
+                        <button class="btn" onclick="addPerson()">Add</button>
+                    </div>
+                </div>
+                <div id="peopleList" class="people-grid"></div>
             </div>
-            <div id="peopleList" class="mt-2"></div>
-        </div>
 
-        <!-- Add Expense -->
-        <div class="mb-4">
-            <h2 class="text-lg font-semibold mb-2">Add Expense</h2>
-            <input id="expenseDesc" type="text" placeholder="Description" class="w-full p-2 mb-2 border rounded">
-            <input id="expenseAmount" type="number" placeholder="Amount" class="w-full p-2 mb-2 border rounded" min="0" step="0.01">
-            <select id="expensePayer" class="w-full p-2 mb-2 border rounded">
-                <option value="">Select Payer</option>
-            </select>
-            <div class="mb-2">
-                <label class="block text-sm font-medium mb-1">Split Among:</label>
-                <div id="expenseParticipants" class="flex flex-col gap-1"></div>
+            <!-- Expense Entry Section -->
+            <div class="section">
+                <h2>💸 Add Expenses</h2>
+                <div class="expense-form">
+                    <div class="expense-form-row">
+                        <div class="form-group">
+                            <label for="paidBy">Paid By:</label>
+                            <select id="paidBy">
+                                <option value="">Select person</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Amount (₹):</label>
+                            <input type="number" id="amount" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn" onclick="addExpense()">Add Expense</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <input type="text" id="description" placeholder="What was this expense for?">
+                    </div>
+                </div>
+                <div id="expensesList" class="expenses-list"></div>
             </div>
-            <button onclick="addExpense()" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 w-full">Add Expense</button>
-        </div>
 
-        <!-- Expenses List -->
-        <div class="mb-4">
-            <h2 class="text-lg font-semibold mb-2">Expenses</h2>
-            <div id="expensesList"></div>
-        </div>
+            <!-- Algorithm Information -->
+            <div class="algorithm-info">
+                <h4>🧠 Greedy Algorithm Approach</h4>
+                <p>This system uses a greedy algorithm to minimize transactions by:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Calculating net balances for each person</li>
+                    <li>Finding the person who owes the most and the person who should receive the most</li>
+                    <li>Creating a transaction between them for the minimum of their absolute balances</li>
+                    <li>Repeating until all debts are settled</li>
+                </ul>
+            </div>
 
-        <!-- Balances -->
-        <div>
-            <h2 class="text-lg font-semibold mb-2">Balances</h2>
-            <div id="balancesList"></div>
-        </div>
+            <!-- Calculate Button -->
+            <div class="section">
+                <button class="btn calculate-btn" onclick="calculateSplits()" style="width: 100%; font-size: 1.2em; padding: 15px;">
+                    🔄 Calculate Optimal Splits
+                </button>
+                <div class="loading-spinner" id="loadingSpinner"></div>
+            </div>
 
-        <!-- Error Message -->
-        <div id="errorMessage" class="text-red-500 text-sm mt-2 hidden"></div>
+            <!-- Results Section -->
+            <div id="results" class="results">
+                <h3>📊 Settlement Results</h3>
+                <div id="balances" class="balance-grid"></div>
+                <h4 style="margin-top: 25px;">💳 Optimal Transactions:</h4>
+                <div id="transactions"></div>
+                <div class="stats">
+                    <div class="stat-card">
+                        <span class="stat-number" id="totalTransactions">0</span>
+                        <span>Transactions</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="totalAmount">₹0</span>
+                        <span>Total Expenses</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="avgPerPerson">₹0</span>
+                        <span>Average per Person</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // Data structures
+        let people = [];
+        let expenses = [];
+
+        // Add person functionality
+        function addPerson() {
+            const nameInput = document.getElementById('personName');
+            const name = nameInput.value.trim();
+            
+            if (name && !people.includes(name)) {
+                people.push(name);
+                nameInput.value = '';
+                updatePeopleDisplay();
+                updatePaidBySelect();
+            }
+        }
+
+        // Remove person functionality
+        function removePerson(name) {
+            people = people.filter(p => p !== name);
+            expenses = expenses.filter(e => e.paidBy !== name);
+            updatePeopleDisplay();
+            updatePaidBySelect();
+            updateExpensesDisplay();
+        }
+
+        // Update people display
+        function updatePeopleDisplay() {
+            const peopleList = document.getElementById('peopleList');
+            peopleList.innerHTML = '';
+            
+            people.forEach((person, index) => {
+                const personCard = document.createElement('div');
+                personCard.className = 'person-card';
+                personCard.style.animationDelay = `${index * 0.1}s`;
+                personCard.innerHTML = `
+                    <span>${person}</span>
+                    <button class="btn btn-danger" onclick="removePerson('${person}')" style="padding: 5px 10px; font-size: 12px;">Remove</button>
+                `;
+                peopleList.appendChild(personCard);
+            });
+        }
+
+        // Update paid by select options
+        function updatePaidBySelect() {
+            const paidBySelect = document.getElementById('paidBy');
+            paidBySelect.innerHTML = '<option value="">Select person</option>';
+            
+            people.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person;
+                option.textContent = person;
+                paidBySelect.appendChild(option);
+            });
+        }
+
+        // Add expense functionality
+        function addExpense() {
+            const paidBy = document.getElementById('paidBy').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const description = document.getElementById('description').value.trim();
+            
+            if (paidBy && amount > 0) {
+                const expense = {
+                    id: Date.now(),
+                    paidBy,
+                    amount,
+                    description: description || 'Expense'
+                };
+                
+                expenses.push(expense);
+                
+                // Clear form
+                document.getElementById('paidBy').value = '';
+                document.getElementById('amount').value = '';
+                document.getElementById('description').value = '';
+                
+                updateExpensesDisplay();
+            }
+        }
+
+        // Update expenses display
+        function updateExpensesDisplay() {
+            const expensesList = document.getElementById('expensesList');
+            expensesList.innerHTML = '';
+            
+            if (expenses.length === 0) {
+                expensesList.innerHTML = '<p style="text-align: center; color: #666;">No expenses added yet</p>';
+                return;
+            }
+            
+            expenses.forEach((expense, index) => {
+                const expenseItem = document.createElement('div');
+                expenseItem.className = 'expense-item';
+                expenseItem.style.animationDelay = `${index * 0.1}s`;
+                expenseItem.innerHTML = `
+                    <div>
+                        <strong>${expense.description}</strong><br>
+                        <small>Paid by ${expense.paidBy}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="money-flow">
+                            <strong>₹${expense.amount.toFixed(2)}</strong>
+                        </div>
+                        <button class="btn btn-danger" onclick="removeExpense(${expense.id})" style="padding: 2px 8px; font-size: 12px; margin-top: 5px;">Remove</button>
+                    </div>
+                `;
+                expensesList.appendChild(expenseItem);
+            });
+        }
+
+        // Remove expense functionality
+        function removeExpense(id) {
+            expenses = expenses.filter(e => e.id !== id);
+            updateExpensesDisplay();
+        }
+
+        // GREEDY ALGORITHM IMPLEMENTATION
+        function calculateSplits() {
+            if (people.length === 0 || expenses.length === 0) {
+                alert('Please add people and expenses first!');
+                return;
+            }
+
+            // Show loading animation
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            loadingSpinner.style.display = 'block';
+
+            // Simulate processing time for dramatic effect
+            setTimeout(() => {
+                // Calculate net balances
+                const balances = calculateNetBalances();
+                
+                // Apply greedy algorithm to find optimal transactions
+                const transactions = greedyDebtSettlement(balances);
+                
+                // Display results
+                displayResults(balances, transactions);
+                
+                // Hide loading spinner
+                loadingSpinner.style.display = 'none';
+            }, 1500);
+        }
+
+        // Calculate net balance for each person
+        function calculateNetBalances() {
+            const balances = {};
+            
+            // Initialize balances
+            people.forEach(person => {
+                balances[person] = 0;
+            });
+            
+            // Calculate total expenses and per person share
+            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            const perPersonShare = totalExpenses / people.length;
+            
+            // Calculate how much each person paid
+            expenses.forEach(expense => {
+                balances[expense.paidBy] += expense.amount;
+            });
+            
+            // Subtract fair share from each person's balance
+            people.forEach(person => {
+                balances[person] -= perPersonShare;
+            });
+            
+            return balances;
+        }
+
+        // Greedy algorithm for debt settlement
+        function greedyDebtSettlement(balances) {
+            const transactions = [];
+            const workingBalances = { ...balances };
+            
+            while (true) {
+                // Find person who owes the most (most negative balance)
+                let maxDebtor = null;
+                let maxDebt = 0;
+                
+                // Find person who should receive the most (most positive balance)
+                let maxCreditor = null;
+                let maxCredit = 0;
+                
+                for (const person in workingBalances) {
+                    if (workingBalances[person] < -0.01) { // Owes money
+                        if (Math.abs(workingBalances[person]) > maxDebt) {
+                            maxDebt = Math.abs(workingBalances[person]);
+                            maxDebtor = person;
+                        }
+                    } else if (workingBalances[person] > 0.01) { // Should receive money
+                        if (workingBalances[person] > maxCredit) {
+                            maxCredit = workingBalances[person];
+                            maxCreditor = person;
+                        }
+                    }
+                }
+                
+                // If no debtor or creditor found, we're done
+                if (!maxDebtor || !maxCreditor) {
+                    break;
+                }
+                
+                // Calculate transaction amount (minimum of debt and credit)
+                const transactionAmount = Math.min(maxDebt, maxCredit);
+                
+                // Create transaction
+                transactions.push({
+                    from: maxDebtor,
+                    to: maxCreditor,
+                    amount: transactionAmount
+                });
+                
+                // Update balances
+                workingBalances[maxDebtor] += transactionAmount;
+                workingBalances[maxCreditor] -= transactionAmount;
+            }
+            
+            return transactions;
+        }
+
+        // Display results
+        function displayResults(balances, transactions) {
+            const resultsDiv = document.getElementById('results');
+            const balancesDiv = document.getElementById('balances');
+            const transactionsDiv = document.getElementById('transactions');
+            
+            // Show results section with animation
+            resultsDiv.classList.add('show');
+            
+            // Display balances
+            balancesDiv.innerHTML = '';
+            let balanceIndex = 0;
+            for (const person in balances) {
+                const balance = balances[person];
+                const balanceCard = document.createElement('div');
+                balanceCard.className = `balance-card ${balance > 0.01 ? 'positive' : balance < -0.01 ? 'negative' : 'zero'}`;
+                balanceCard.style.animationDelay = `${balanceIndex * 0.1}s`;
+                
+                let status = 'Settled';
+                if (balance > 0.01) status = 'Should receive';
+                if (balance < -0.01) status = 'Owes';
+                
+                balanceCard.innerHTML = `
+                    <strong>${person}</strong><br>
+                    <span style="font-size: 1.2em;">${balance >= 0 ? '+' : ''}₹${balance.toFixed(2)}</span><br>
+                    <small>${status}</small>
+                `;
+                balancesDiv.appendChild(balanceCard);
+                balanceIndex++;
+            }
+            
+            // Display transactions
+            transactionsDiv.innerHTML = '';
+            if (transactions.length === 0) {
+                transactionsDiv.innerHTML = '<p style="text-align: center;">No transactions needed - everyone is settled! 🎉</p>';
+            } else {
+                transactions.forEach((transaction, index) => {
+                    const transactionItem = document.createElement('div');
+                    transactionItem.className = 'transaction-item';
+                    transactionItem.style.animationDelay = `${index * 0.15}s`;
+                    transactionItem.innerHTML = `
+                        <div class="money-flow">
+                            <span>${transaction.from} → ${transaction.to}</span>
+                        </div>
+                        <strong>₹${transaction.amount.toFixed(2)}</strong>
+                    `;
+                    transactionsDiv.appendChild(transactionItem);
+                });
+            }
+            
+            // Update statistics with animation
+            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            
+            setTimeout(() => {
+                animateCounter('totalTransactions', transactions.length);
+                animateRupeeCounter('totalAmount', totalExpenses);
+                animateRupeeCounter('avgPerPerson', totalExpenses / people.length);
+            }, 500);
+        }
+
+        // Animate counter
+        function animateCounter(elementId, finalValue) {
+            const element = document.getElementById(elementId);
+            let currentValue = 0;
+            const increment = finalValue / 50;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    currentValue = finalValue;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.round(currentValue);
+            }, 30);
+        }
+
+        // Animate rupee counter
+        function animateRupeeCounter(elementId, finalValue) {
+            const element = document.getElementById(elementId);
+            let currentValue = 0;
+            const increment = finalValue / 50;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    currentValue = finalValue;
+                    clearInterval(timer);
+                }
+                element.textContent = `₹${currentValue.toFixed(2)}`;
+            }, 30);
+        }
+
+        // Add ripple effect to buttons
+        function addRippleEffect() {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = button.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.5);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s ease-out;
+                        pointer-events: none;
+                    `;
+                    
+                    button.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        }
+
+        // Add ripple animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Handle Enter key press
+        document.getElementById('personName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addPerson();
+            }
+        });
+
+        document.getElementById('amount').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addExpense();
+            }
+        });
+
+        // Initialize with sample data (Indian names and INR amounts)
+        function initializeSampleData() {
+            people = ['Arjun', 'Priya', 'Rahul', 'Sneha'];
+            expenses = [
+                { id: 1, paidBy: 'Arjun', amount: 2500.00, description: 'Dinner at Restaurant' },
+                { id: 2, paidBy: 'Priya', amount: 1200.00, description: 'Uber rides' },
+                { id: 3, paidBy: 'Rahul', amount: 4500.00, description: 'Hotel booking' },
+                { id: 4, paidBy: 'Sneha', amount: 800.00, description: 'Breakfast & Snacks' }
+            ];
+            
+            updatePeopleDisplay();
+            updatePaidBySelect();
+            updateExpensesDisplay();
+        }
+
+        // Initialize the app
+        initializeSampleData();
+        
+        // Add ripple effect after DOM is loaded
+        setTimeout(addRippleEffect, 100);
+
+    </script>
 </body>
 </html>
