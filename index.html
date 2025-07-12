@@ -1018,13 +1018,8 @@
 
         // Initialize with sample data (Indian names and INR amounts)
         function initializeSampleData() {
-            people = ['Arjun', 'Priya', 'Rahul', 'Sneha'];
-            expenses = [
-                { id: 1, paidBy: 'Arjun', amount: 2500.00, description: 'Dinner at Restaurant' },
-                { id: 2, paidBy: 'Priya', amount: 1200.00, description: 'Uber rides' },
-                { id: 3, paidBy: 'Rahul', amount: 4500.00, description: 'Hotel booking' },
-                { id: 4, paidBy: 'Sneha', amount: 800.00, description: 'Breakfast & Snacks' }
-            ];
+            people = [];
+            expenses = [ ];
             
             updatePeopleDisplay();
             updatePaidBySelect();
